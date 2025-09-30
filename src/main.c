@@ -13,8 +13,8 @@
 	#include <ncurses.h>
 #endif
 
-#include "sfd.c" // library to open file explorer (link comdlg32 when compiling on windows)
-#include "shader.c"
+#include "sfd.h" // library to open file explorer (link comdlg32 when compiling on windows)
+#include "shader.h"
 
 #define WIDTH 1080
 #define HEIGHT 720
@@ -258,6 +258,8 @@ float* getSpeciesSetting(int idx){
 		break;
 		case 9:	return &(speciesSettings[(int)speciesIdx].b);
 		break;
+        default: return NULL;
+        break;
 	}
 }
 
@@ -272,12 +274,12 @@ void display(int oldOption, int newOption, int startX, int startY){
 		
 		attron(A_NORMAL);
 		if (table == 0){
-			int i;
+			size_t i;
 			for (i = 0; i < sizeof(speciesSettingsTable) / sizeof(Setting); i++){
 				mvprintw(startY + i, startX + 12, "%s: < %.3f >\t", speciesSettingsTable[i].name, *getSpeciesSetting(i));
 			}
-		}else if (table = 1){
-			int i;
+		}else if (table == 1){
+			size_t i;
 			for (i = 0; i < sizeof(simulationSettingsTable) / sizeof(Setting); i++){
 				mvprintw(startY + i, startX + 12, "%s: < %.3f >\t", simulationSettingsTable[i].name, *simulationSettingsTable[i].valuePtr);
 			}
@@ -323,7 +325,7 @@ void saveSettings(){
         FILE* fptr = fopen(filename, "w");
         
         float tempSpeciesIdx = speciesIdx;
-        int i, j;
+        size_t i, j;
         for (j = 0; j < 3; j++){
             speciesIdx = (float)j;
             for (i = 1; i < sizeof(speciesSettingsTable) / sizeof(Setting); i++){ 
@@ -348,7 +350,7 @@ void loadSettings(){
         char str[16];
         
         float tempSpeciesIdx = speciesIdx;
-        int i, j;
+        size_t i, j;
         for (j = 0; j < 3; j++){
             speciesIdx = (float)j;
             for (i = 1; i < sizeof(speciesSettingsTable) / sizeof(Setting); i++){
@@ -375,7 +377,7 @@ unsigned int initAgents(){
 	int radius = ROWS / 2;
 	int center[] = {COLUMNS / 2, ROWS / 2};
 	float x, y, alpha;
-	Mode spawnMode;
+	Mode spawnMode = 0;
 
 	int a;
 	for (a = 0; a < simulationSettings.agents; a++){
@@ -523,10 +525,10 @@ int main(int argc, char* argv[]) {
 	/*----------------------------------*/
 	
 	// Create Normal shader with function from shader.c
-	unsigned int shaderProgram = createShader("vertexShader.glsl", "fragmentShader.glsl");
+	unsigned int shaderProgram = createShader("./src/shader/vertexShader.glsl", "./src/shader/fragmentShader.glsl");
 	
 	// Create Compute shader with function from shader.c
-	unsigned int computeProgram = createComputeShader("computeShader.glsl");
+	unsigned int computeProgram = createComputeShader("./src/shader/computeShader.glsl");
 	
 	// Create shader variable
 	int uniformWindowSize = glGetUniformLocation(shaderProgram, "windowSize");

@@ -1,11 +1,4 @@
-#ifndef SHADER_H
-#define SHADER_H
-#endif
-
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <GL/glew.h>
+#include "shader.h"
 
 void checkCompileError(unsigned int shader, char* shaderName){
 	int success;
@@ -30,6 +23,10 @@ void checkLinkingError(unsigned int program){
 
 char* file2Str(const char* path){	// returns allocated memory pointer, must free after use!
 	FILE* fptr = fopen(path, "r");
+    if (fptr == NULL) {
+        printf("Shader path not found: %s\n", path);
+        exit(1);
+    }
 	
 	int bufferSize = 512;
 	char buffer[bufferSize];
@@ -39,10 +36,10 @@ char* file2Str(const char* path){	// returns allocated memory pointer, must free
 	int i = 0;
 	while (fgets(buffer, bufferSize, fptr)){
 		if (i == 0){
-			strcpy(str, buffer);
+			strncpy(str, buffer, bufferSize);
 		}else{
 			str = (char*)realloc(str, bufferSize * i);
-			strcat(str, buffer);
+			strncat(str, buffer, bufferSize);
 		}
 		i++;			
 	}
